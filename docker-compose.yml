@@ -1,0 +1,32 @@
+version: "3.9"
+
+services:
+
+  postgres:
+    image: postgres:15
+    container_name: codeanalyzer_postgres
+    restart: always
+    environment:
+      POSTGRES_DB: codeanalyzer_db
+      POSTGRES_USER: codeanalyzer
+      POSTGRES_PASSWORD: root
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  app:
+    build: .
+    container_name: codeanalyzer_app
+    depends_on:
+      - postgres
+    ports:
+      - "8080:8080"
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/codeanalyzer_db
+      DB_USERNAME: codeanalyzer
+      DB_PASSWORD: root
+
+volumes:
+  pgdata:
